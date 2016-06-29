@@ -1,5 +1,6 @@
 package com.feicuiedu.gitdroid;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
@@ -29,5 +30,7 @@ public class SplashActivity extends AppCompatActivity {
     @OnClick(R.id.btnEnter)
     public void enter() {
         Toast.makeText(SplashActivity.this, "Enter", Toast.LENGTH_SHORT).show();
+        Intent intent=new Intent(this,MainActivity.class);
+        startActivity(intent);
     }
 }
