@@ -13,16 +13,12 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     //构造方法传入视图
     public ViewPagerAdapter(Context context) {
-//        View view = LayoutInflater.from(context).inflate(R.layout.content_pager_0, null, false);
-//        View view1 = LayoutInflater.from(context).inflate(R.layout.content_pager_1, null, false);
-//        View view2 = LayoutInflater.from(context).inflate(R.layout.content_pager_2, null, false);
-        views = new View[]{
-//                LayoutInflater.from(context).inflate(R.layout.content_pager_0, null, true),
+      views = new View[]{
+
                 new pager0(context),
                 new pager1(context),
                 new pager2(context)
-//                LayoutInflater.from(context).inflate(R.layout.content_pager_1, null, true),
-//                LayoutInflater.from(context).inflate(R.layout.content_pager_2, null, true)
+
         };
     }
 
