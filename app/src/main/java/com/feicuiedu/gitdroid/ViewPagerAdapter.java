@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 public class ViewPagerAdapter extends PagerAdapter {
     private final View[] views;
 
-
+//你噶诶韩国
     public ViewPagerAdapter(Context context) {
         View view= LayoutInflater.from(context).inflate(R.layout.content_pager_0,null,false);
         View view1= LayoutInflater.from(context).inflate(R.layout.content_pager_1,null,false);
