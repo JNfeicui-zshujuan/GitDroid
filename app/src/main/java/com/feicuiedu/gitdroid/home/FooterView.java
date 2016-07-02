@@ -14,6 +14,8 @@ import butterknife.ButterKnife;
 
 /**
  * Created by zhengshujuan on 2016/7/1.
+ * 此视图三种不同的状态，1.加载中的进度条 2. 所有数据加载完毕的信息 3.加载发生错误的信息
+ * 布局文件为1个progressbar,2个textview.
  */
 public class FooterView extends FrameLayout {
     //代表视图三种状态的静态常量值

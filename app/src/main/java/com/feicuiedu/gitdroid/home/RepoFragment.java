@@ -20,9 +20,11 @@ import com.mugen.MugenCallbacks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
@@ -42,7 +44,7 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
     private List<String> datas = new ArrayList<>();
     @Bind(R.id.ptrClassicFrameLayout)
     PtrClassicFrameLayout ptrfram;
-    FooterView footerView = new FooterView(getContext());
+    FooterView footerView;
 
     //上拉加载更多视图层的业务逻辑
     private void loadMore() {
@@ -67,6 +69,7 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
                         //将加载到的数据添加到视图上
                         addMoreData(loadDatas);
                         //隐藏加载中
+                        hideLoadMore();
                     }
                 });
             }
@@ -83,34 +86,52 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
         return repoFragment;
     }
 
-    private void loadData(final int size) {
+    private void loadData() {
+        final int size = new Random().nextInt(15);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                datas.clear();
-
-
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                final ArrayList<String> loadDatas = new ArrayList<String>();
+                for (int i = 0; i < size; i++) {
+                    loadDatas.add("我是第" + (++count) + "条数据");
+                }
+                asnycLoadDatad(size, loadDatas);
             }
         }).start();
+
+        //通知Adapter数据已更新
+        adapter.notifyDataSetChanged();
+//        //刷新完成时,停止刷新
+//        stopRefresh();
+    }
+
+    private static int count = 0;
+
+    public void asnycLoadDatad(final int size, final ArrayList<String> datas) {
         ptrfram.post(new Runnable() {
             @Override
             public void run() {
-                adapter.clear();
-                adapter.addAll(datas);
+                //模拟空数据是的视图
+                if (size == 0) {
+                    showEmptyView();
+                } else if (size == 1) {
+                    showErroView();
+                } else {
+                    showContentView();
+                    //视图进行数据刷新
+                    refreshData(datas);
+                }
+                //停止结束这次下拉刷新
+                stopRefresh();
             }
-
         });
-        //通知Adapter数据已更新
-        adapter.notifyDataSetChanged();
-        //刷新完成时,停止刷新
-        stopRefresh();
-    }
-
-    public void asnycLoadDatad() {
 
     }
-    //上拉加载更多视图层实现
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -134,33 +155,40 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
         ButterKnife.bind(this, view);
         //加载系统的listview的布局
         adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
-        adapter.addAll(datas);
         listView.setAdapter(adapter);
         //加载刷新数据
         ptrfram.setPtrHandler(new PtrDefaultHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                loadData(11);
+                loadData();
             }
         });
+        footerView = new FooterView(getContext());
         //上拉加载更多(listview滑动到最后的位置了,就可以loadmore)
         Mugen.with(listView, new MugenCallbacks() {
             @Override
             public void onLoadMore() {
-
-
+                Toast.makeText(getActivity(), "loadMore", Toast.LENGTH_SHORT).show();
+                loadMore();
             }
 
+            //是否正在加载，避免重复加载
             @Override
             public boolean isLoading() {
-                return false;
+                return listView.getFooterViewsCount() > 0 && footerView.isLoading();
             }
 
+            //是否所有数据都加载完
             @Override
             public boolean hasLoadedAllItems() {
                 return false;
             }
-        });
+        }).start();
+    }
+
+    @OnClick({R.id.emptyView, R.id.errorView})
+       public void autoRefresh() {
+        ptrfram.autoRefresh();
     }
 
     @Override
@@ -201,6 +229,7 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
         for (int i = 1; i <= 20; i++) {
             datas.add("刷新数据第" + i + "次");
         }
+        adapter.addAll(datas);
     }
 
     @Override
@@ -215,34 +244,43 @@ public class RepoFragment extends Fragment implements PtrView<List<String>>, Loa
     }
 
     //上拉加载数据视图层实现
+    //
     @Override
     public void viewLoading() {
 
     }
 
+    //加载错误
     @Override
-    public void loadViewErro(String string) {
+    public void loadViewErro() {
         if (listView.getFooterViewsCount() == 0) {
             listView.addFooterView(footerView);
         }
         footerView.showError();
     }
 
+    //加载完成
     @Override
     public void loadMoreEnd() {
-
+        if (listView.getFooterViewsCount() == 0) {
+            listView.addFooterView(footerView);
+        }
+        footerView.showComplete();
     }
 
+    //添加更多数据
     @Override
     public void addMoreData(List<String> datas) {
         adapter.addAll(datas);
     }
 
+    //隐藏加载更多
     @Override
     public void hideLoadMore() {
         listView.removeFooterView(footerView);
     }
 
+    //正在加载更多
     @Override
     public void showLoadMoreLoading() {
         if (listView.getFooterViewsCount() == 0) {
