@@ -1,4 +1,4 @@
-package com.feicuiedu.gitdroid;
+package com.feicuiedu.gitdroid.ViewPager;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
+import com.feicuiedu.gitdroid.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

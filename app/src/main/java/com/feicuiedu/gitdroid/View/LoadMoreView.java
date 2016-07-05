@@ -1,11 +1,9 @@
-package com.feicuiedu.gitdroid;
+package com.feicuiedu.gitdroid.View;
 
 /**
  * Created by zhengshujuan on 2016/7/1.
  */
 public interface LoadMoreView <T>{
-    //正在加载中.........
-    void viewLoading();
     //加载失败.....
     void loadViewErro();
     //没有加载数据

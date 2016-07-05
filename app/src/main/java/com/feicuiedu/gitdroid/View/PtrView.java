@@ -1,4 +1,4 @@
-package com.feicuiedu.gitdroid;
+package com.feicuiedu.gitdroid.View;
 
 /**
  * Created by zhengshujuan on 2016/7/1.

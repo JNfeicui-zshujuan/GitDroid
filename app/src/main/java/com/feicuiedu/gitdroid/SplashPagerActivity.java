@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.feicuiedu.gitdroid.ViewPager.ViewPagerAdapter;
+import com.feicuiedu.gitdroid.ViewPager.pager2;
+
 import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
@@ -100,13 +103,13 @@ public class SplashPagerActivity extends Fragment {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             if (position == 0) {
-                int evaluate = (int) argbEvaluator.evaluate(0.2f, colorGreen, colorRed);
+                int evaluate = (int) argbEvaluator.evaluate(positionOffset, colorGreen, colorRed);
                 Log.d(TAG, "onPageScrolled: 颜色1******" + evaluate);
                 frameLayout.setBackgroundColor(evaluate);
                 return;
             }
             if (position == 1) {
-                int evaluate = (int) argbEvaluator.evaluate(0.4f, colorRed, colorYellow);
+                int evaluate = (int) argbEvaluator.evaluate(positionOffset, colorRed, colorYellow);
                 Log.d(TAG, "onPageScrolled: 颜色2******" + evaluate);
                 frameLayout.setBackgroundColor(evaluate);
                 return;

@@ -15,30 +15,38 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
- * Created by zhengshujuan on 2016/6/30.
- * 最热门仓库fragment
+ * Created by Administrator on 2016/6/30 0030.
+ *
+ * <p/>最热门仓库Fragment
+ *
+ * <p/>本Fragment是被添加到MainActivity中。
+ *
+ * <p/>它上面有一个ViewPager和一个相对应的TabLayout。
+ *
+ * <p/>ViewPager上，每一个页面都是一个RepoListFragment
  */
 public class HotRepoFragment extends Fragment {
+
     @Bind(R.id.viewPager)
     ViewPager viewPager;
     @Bind(R.id.tabLayout)
     TabLayout tabLayout;
-private HotRepoAdapter adapter;
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_hot_repo,container,false);
+    @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_hot_repo, container, false);
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this,view);
-        adapter=new HotRepoAdapter(getChildFragmentManager());
-        viewPager.setAdapter(adapter);
+        ButterKnife.bind(this, view);
+        // 注意此处是在Fragment中添加Fragment，属于嵌套Fragment
+        viewPager.setAdapter(new HotRepoPagerAdapter(getChildFragmentManager()));
+        // 将ViewPager绑定到TabLayout上
         tabLayout.setupWithViewPager(viewPager);
-
+    }
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
 }

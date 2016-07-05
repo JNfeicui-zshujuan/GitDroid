@@ -1,9 +1,13 @@
-package com.feicuiedu.gitdroid;
+package com.feicuiedu.gitdroid.ViewPager;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.feicuiedu.gitdroid.ViewPager.pager0;
+import com.feicuiedu.gitdroid.ViewPager.pager1;
+import com.feicuiedu.gitdroid.ViewPager.pager2;
 
 /**
  * Created by zhengshujuan on 2016/6/28.
