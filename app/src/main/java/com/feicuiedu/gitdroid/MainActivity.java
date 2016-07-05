@@ -65,10 +65,6 @@ private MenuItem menuItem;
         transaction.commit();
     }
 
-//    public void repleceFragment(Fragment fragment) {
-//
-//    }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         //true将菜单变为checked状态
