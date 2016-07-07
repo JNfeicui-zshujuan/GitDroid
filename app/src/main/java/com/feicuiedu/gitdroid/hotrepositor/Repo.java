@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by zhengshujuan on 2016/7/6.
+ * 具体到一个仓库的实体类,bean.
  */
 public class Repo {
 

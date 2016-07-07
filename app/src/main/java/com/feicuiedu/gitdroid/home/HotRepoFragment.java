@@ -40,7 +40,7 @@ public class HotRepoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         // 注意此处是在Fragment中添加Fragment，属于嵌套Fragment
-        viewPager.setAdapter(new HotRepoPagerAdapter(getChildFragmentManager()));
+        viewPager.setAdapter(new HotRepoPagerAdapter(getChildFragmentManager(),getContext()));
         // 将ViewPager绑定到TabLayout上
         tabLayout.setupWithViewPager(viewPager);
     }

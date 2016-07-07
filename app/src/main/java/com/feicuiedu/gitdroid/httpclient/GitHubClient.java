@@ -16,6 +16,7 @@ public class GitHubClient implements GithubApi {
     private static GitHubClient sClient;
     private GithubApi githubApi;
 
+    //获取GitHubClient的实例
     public static GitHubClient getInstance() {
         if (sClient == null) {
             sClient = new GitHubClient();
@@ -26,15 +27,10 @@ public class GitHubClient implements GithubApi {
     private GitHubClient() {
         //创建一个okhttp的实例
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-//                .addInterceptor(new Interceptor() {
-//                    @Override
-//                    public Response intercept(Chain chain) throws IOException {
-//                        return null;
-//                    }
-//                })//添加拦截器,处理Token
+        //添加拦截器,处理Token
                 .addInterceptor(new TokenInterceptor())
                 .build();
-       //创建一个retrofit的实例.将请求到的okhttp进行内部解析
+        //创建一个retrofit的实例.将请求到的okhttp进行内部解析
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -55,6 +51,6 @@ public class GitHubClient implements GithubApi {
 
     @Override
     public Call<RepoResultAPI> searchRepo(@Query("q") String query, @Query("page") int pageId) {
-        return githubApi.searchRepo(query,pageId);
+        return githubApi.searchRepo(query, pageId);
     }
 }

@@ -1,8 +1,11 @@
 package com.feicuiedu.gitdroid.home;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.feicuiedu.gitdroid.hotrepositor.Language;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +24,12 @@ import java.util.List;
  */
 public class HotRepoPagerAdapter extends FragmentPagerAdapter {
 
-    private final List<String> languages = new ArrayList<String>();
+    private List<Language> languages = new ArrayList<>();
 
-    public HotRepoPagerAdapter(FragmentManager fm) {
+    public HotRepoPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         // 只是为了测试
-        for (int i = 1; i < 10; i++) {
-            languages.add("Java" + i);
-        }
+        languages = Language.getDefaultLangs(context);
     }
 
     @Override public Fragment getItem(int position) {
@@ -40,6 +41,6 @@ public class HotRepoPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override public CharSequence getPageTitle(int position) {
-        return languages.get(position);
+        return  languages.get(position).getName();
     }
 }

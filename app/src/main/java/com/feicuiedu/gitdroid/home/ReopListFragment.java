@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -36,21 +36,29 @@ import in.srain.cube.views.ptr.header.StoreHouseHeader;
  * 3 fragement 继承 mvpfragment <view,presenter></>
  */
 public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter> implements PtrPageView {
+
+  //加载列表
     @Bind(R.id.lvRepos)
     ListView listView;
+    //下拉刷新de
     @Bind(R.id.ptrClassicFrameLayout)
     PtrClassicFrameLayout ptrFragment;
+    //加载空白视图
     @Bind(R.id.emptyView)
     TextView emptyView;
+    //加载错误视图
     @Bind(R.id.errorView)
     TextView errorView;
-    private ArrayAdapter<Repo> adapter;
+    //"加载刷新错误"
+   // @Bind(R.string.refresh_error) String refresherror;
+    private LanguageRepoAdapter adapter;
     private static final String KEY_ = "key_language";
     private FooterView footerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Nullable
@@ -74,39 +82,27 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        adapter = new ArrayAdapter<Repo>(getContext(), android.R.layout.simple_list_item_1);
+        adapter = new LanguageRepoAdapter();
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Repo repo = adapter.getItem(position);
+
+            }
+        });
         //初始下拉刷新
         initPullToRefresh();
         //初始上拉加载
         initLoadMoreScroll();
-        if (adapter.getCount()==0){
+        if (adapter.getCount() == 0) {
             ptrFragment.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     ptrFragment.autoRefresh();
                 }
-            },200);
+            }, 200);
         }
-//        footerView = new FooterView(getContext());
-//        Mugen.with(listView, new MugenCallbacks() {
-//            @Override
-//            public void onLoadMore() {
-//                Toast.makeText(getContext(), "loadMore", Toast.LENGTH_SHORT).show();
-//                getPresenter().LoadMore();
-//            }
-//
-//            @Override
-//            public boolean isLoading() {
-//                return listView.getFooterViewsCount() > 0 && footerView.isLoading();
-//            }
-//
-//            //是否所有数据都已加载
-//            @Override
-//            public boolean hasLoadedAllItems() {
-//                return listView.getFooterViewsCount() > 0 && footerView.isComplete();
-//            }
-//        }).start();
     }
 
     //初始化下拉刷新
@@ -191,10 +187,12 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
             listView.addFooterView(footerView);
         }
         footerView.showComplete();
+
     }
 
     @Override
     public void addMoreData(List<Repo> datas) {
+        if (adapter==null)return;
         adapter.addAll(datas);
     }
 
@@ -224,6 +222,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
         ptrFragment.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
+     //   errorView.setText(String.format(refresherror,string));
     }
 
 
@@ -254,7 +253,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     }
 
     //获取ReopListFragment的实例,也就是viewpager的每一个item
-    public static ReopListFragment getInctance(String language) {
+    public static ReopListFragment getInctance(Language language) {
         ReopListFragment rf = new ReopListFragment();
         Bundle args = new Bundle();
         args.putSerializable(KEY_, language);

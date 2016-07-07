@@ -27,6 +27,7 @@ public interface GithubApi {
             GLIENT_ID + "&" + "scope=" + INIITAL_SCOPE;
 
     //获取访问令牌API,(保存获取到的token ,要增加一个token 的实体类-AccessTokenResult)
+    //授权结果
     //https://github.com/login/oauth/access_token
     @Headers("Accept:application/json")
     @FormUrlEncoded
@@ -35,10 +36,11 @@ public interface GithubApi {
                                           @Field("client_secret") String clientSecret,
                                           @Field("code") String code);
 
-    //用户信息的接口,需要增加一个用户的实体类-User
+    //用户信息的接口,需要增加一个用户的实体类-User,获取用户信息
     @GET("user")
     Call<User> getUserInfo();
 
+    //查询仓库结果
     @GET("/search/repositories")
     Call<RepoResultAPI> searchRepo(@Query("q") String query, @Query("page") int pageId);
 }

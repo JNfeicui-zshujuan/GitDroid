@@ -6,12 +6,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.feicuiedu.gitdroid.R;
 import com.feicuiedu.gitdroid.hotrepositor.Repo;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,9 +26,18 @@ private ArrayList<Repo> datas;
     public LanguageRepoAdapter(){
         datas=new ArrayList<>();
     }
+    //添加语言数据
+    public void addAll(Collection<Repo> repos){
+        datas.addAll(repos);
+        notifyDataSetChanged();
+    }
+    public void clear(){
+        datas.clear();
+        notifyDataSetChanged();
+    }
     @Override
     public int getCount() {
-        return 0;
+        return datas.size();
     }
 
     @Override
@@ -50,12 +61,12 @@ private ArrayList<Repo> datas;
         Repo repo=getItem(position);
         viewHolder.repoName.setText(repo.getFullName());
         viewHolder.repoInfo.setText(repo.getDescription());
-        viewHolder.repoStars.setText(repo.getStargazerCount());
-
+        viewHolder.repoStars.setText(repo.getStargazerCount()+"");
+        Toast.makeText(parent.getContext(), repo.getFullName(), Toast.LENGTH_SHORT).show();
         ImageLoader.getInstance().displayImage(repo.getOwner().getAvatar(),viewHolder.ivIcon);
-        return null;
+        return convertView;
     }
-    static class ViewHolder{
+     class ViewHolder{
         @Bind(R.id.ivIcon)
         ImageView ivIcon;
         @Bind(R.id.tvRepoName)
