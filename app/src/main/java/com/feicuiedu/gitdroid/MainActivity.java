@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onContentChanged();
         ButterKnife.bind(this);
         utils=new ActivityUtils(this);
-        ivIcon=ButterKnife.findById(navigationView.getHeaderView(0),R.id.ivIcon);
+        ivIcon=(ImageView) ButterKnife.findById(navigationView.getHeaderView(0),R.id.ivIcon);
         //登录
-        btnLogin=ButterKnife.findById(navigationView.getHeaderView(0),R.id.btnLogin);
+        btnLogin=(Button) ButterKnife.findById(navigationView.getHeaderView(0),R.id.btnLogin);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

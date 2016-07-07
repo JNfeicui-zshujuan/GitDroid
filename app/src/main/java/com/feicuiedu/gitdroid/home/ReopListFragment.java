@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.feicuiedu.gitdroid.View.PtrPageView;
 import com.feicuiedu.gitdroid.R;
+import com.feicuiedu.gitdroid.View.PtrPageView;
+import com.feicuiedu.gitdroid.hotrepositor.Language;
+import com.feicuiedu.gitdroid.hotrepositor.Repo;
 import com.hannesdorfmann.mosby.mvp.MvpFragment;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
@@ -24,15 +25,15 @@ import butterknife.OnClick;
 import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.header.StoreHouseHeader;
 
 /**
  * Created by zhengshujuan on 2016/7/1.
  * mvp库的使用: 添加mosby依赖:
- *     compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
- *  1 view继承 mvpview (定义的接口,)
- *  2 presenter继承mvpPresenter (mvpnullObjectbasepresenter)<view></>
- *  3 fragement 继承 mvpfragment <view,presenter></>
- *
+ * compile 'com.hannesdorfmann.mosby:mvp:2.0.1'
+ * 1 view继承 mvpview (定义的接口,)
+ * 2 presenter继承mvpPresenter (mvpnullObjectbasepresenter)<view></>
+ * 3 fragement 继承 mvpfragment <view,presenter></>
  */
 public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter> implements PtrPageView {
     @Bind(R.id.lvRepos)
@@ -43,7 +44,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     TextView emptyView;
     @Bind(R.id.errorView)
     TextView errorView;
-    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<Repo> adapter;
     private static final String KEY_ = "key_language";
     private FooterView footerView;
 
@@ -59,33 +60,98 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
 
     }
 
+    private Language getLanguage() {
+        return (Language) getArguments().getSerializable(KEY_);
+    }
+
+    //重写Mosby库父类MvpFragment的方法,返回当前视图使用的Presenter对象
     @Override
     public ReopListPresenter createPresenter() {
-        return new ReopListPresenter();
+        return new ReopListPresenter(getLanguage());
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<Repo>(getContext(), android.R.layout.simple_list_item_1);
         listView.setAdapter(adapter);
-        //下拉刷新
+        //初始下拉刷新
+        initPullToRefresh();
+        //初始上拉加载
+        initLoadMoreScroll();
+        if (adapter.getCount()==0){
+            ptrFragment.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ptrFragment.autoRefresh();
+                }
+            },200);
+        }
+//        footerView = new FooterView(getContext());
+//        Mugen.with(listView, new MugenCallbacks() {
+//            @Override
+//            public void onLoadMore() {
+//                Toast.makeText(getContext(), "loadMore", Toast.LENGTH_SHORT).show();
+//                getPresenter().LoadMore();
+//            }
+//
+//            @Override
+//            public boolean isLoading() {
+//                return listView.getFooterViewsCount() > 0 && footerView.isLoading();
+//            }
+//
+//            //是否所有数据都已加载
+//            @Override
+//            public boolean hasLoadedAllItems() {
+//                return listView.getFooterViewsCount() > 0 && footerView.isComplete();
+//            }
+//        }).start();
+    }
+
+    //初始化下拉刷新
+    private void initPullToRefresh() {
+        //使用本对象作为key,记录上一次刷新时间,如果两次下拉时间太近,则不会触发刷新方法
+        ptrFragment.setLastUpdateTimeRelateObject(this);
+        ptrFragment.setBackgroundResource(R.color.colorRefresh);
+        //关闭header多耗时长
+        ptrFragment.setDurationToCloseHeader(1500);
+        //Header效果
+        StoreHouseHeader header = new StoreHouseHeader(getContext());
+        header.setPadding(0, 60, 0, 60);
+        header.initWithString("H H H");
+        ptrFragment.setHeaderView(header);
+        ptrFragment.addPtrUIHandler(header);
+        //下拉刷新处理
         ptrFragment.setPtrHandler(new PtrDefaultHandler() {
             @Override
             public void onRefreshBegin(PtrFrameLayout frame) {
-                getPresenter().loadData();
+                //执行下拉刷新数据业务
+                getPresenter().refresh();
             }
         });
-        //上拉加载更多(listview滑动到最后位置,就可以loadMore)
+    }
+
+    //初始化上拉加载
+    public void initLoadMoreScroll() {
         footerView = new FooterView(getContext());
+        //加载失败时,用户点击FooterView再次触发加载
+        footerView.setErrorClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.LoadMore();
+            }
+        });
+        //使用一个微型库Mugen来处理滚动监听
         Mugen.with(listView, new MugenCallbacks() {
+            //listVIew滚动到底部.触发加载更多
             @Override
             public void onLoadMore() {
-                Toast.makeText(getContext(), "loadMore", Toast.LENGTH_SHORT).show();
-                getPresenter().loadMore();
+                //执行上拉加载数据业务
+                getPresenter().LoadMore();
             }
 
+            //是否正在加载,避免重复加载
             @Override
             public boolean isLoading() {
                 return listView.getFooterViewsCount() > 0 && footerView.isLoading();
@@ -128,7 +194,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     }
 
     @Override
-    public void addMoreData(List<String> datas) {
+    public void addMoreData(List<Repo> datas) {
         adapter.addAll(datas);
     }
 
@@ -154,11 +220,12 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     }
 
     @Override
-    public void showErroView() {
+    public void showErroView(String string) {
         ptrFragment.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
     }
+
 
     @Override
     public void showEmptyView() {
@@ -168,9 +235,12 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     }
 
     @Override
-    public void refreshData(List<String> strings) {
+    public void refreshData(List<Repo> datas) {
         adapter.clear();
-        adapter.addAll(strings);
+        if (datas == null) {
+            return;
+        }
+        adapter.addAll(datas);
     }
 
     @Override
@@ -182,6 +252,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
     public void showMessage(String string) {
 
     }
+
     //获取ReopListFragment的实例,也就是viewpager的每一个item
     public static ReopListFragment getInctance(String language) {
         ReopListFragment rf = new ReopListFragment();

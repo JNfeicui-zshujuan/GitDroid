@@ -1,100 +1,95 @@
 package com.feicuiedu.gitdroid.home;
 
-import android.os.AsyncTask;
-
 import com.feicuiedu.gitdroid.View.PtrPageView;
+import com.feicuiedu.gitdroid.hotrepositor.Language;
+import com.feicuiedu.gitdroid.hotrepositor.Repo;
+import com.feicuiedu.gitdroid.hotrepositor.RepoResultAPI;
+import com.feicuiedu.gitdroid.httpclient.GitHubClient;
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by zhengshujuan on 2016/7/1.
  */
 public class ReopListPresenter extends MvpNullObjectBasePresenter<PtrPageView> {
 
+    private Call<RepoResultAPI> repoResult;
+    private int nextPage = 0;
+    private Language language;
 
-
-    //这是下来刷新的视图业务逻辑
-    public void loadData() {
-        new LoadDataTask().execute();
+    public ReopListPresenter(Language language) {
+        this.language = language;
+    }
+//上拉加载更多视图的业务逻辑
+    public void LoadMore(){
+        getView().showLoadMoreLoading();
+        repoResult=GitHubClient.getInstance().searchRepo("language:" + language.getPath(), nextPage);
+        repoResult.enqueue(loadMoreCallBack);
+    }
+    //这是下拉刷新的视图业务逻辑
+    public void refresh() {
+        getView().hideLoadMore();
+        getView().showContentView();
+        nextPage = 1;//刷新永远是第一页
+        repoResult = GitHubClient.getInstance().searchRepo("language:" + language.getPath(), nextPage + "");
+        repoResult.enqueue(repoResultAPICallback);
     }
 
-    //这是上拉加载更多的视图业务逻辑
-    public void loadMore() {
-        new LoadMoreTask().execute();
-    }
-
-    private static int count = 0;
-
-    private final class LoadDataTask extends AsyncTask<Void, Void, List<String>> {
-
+    private Callback<RepoResultAPI> repoResultAPICallback = new Callback<RepoResultAPI>() {
         @Override
-        protected List<String> doInBackground(Void... params) {
-            //模拟网络连接
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        public void onResponse(Call<RepoResultAPI> call, Response<RepoResultAPI> response) {
+            getView().stopRefresh();//视图停止刷新
+            RepoResultAPI repoResultAPI = response.body();
+            if (repoResultAPI == null) {
+                getView().showErroView("result is null");
+                return;
             }
-            final int size = new Random().nextInt(100);
-            final ArrayList<String> loadDatas = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                loadDatas.add("我是下拉刷新" + (++count));
-            }
-            return loadDatas;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> strings) {
-            super.onPostExecute(strings);
-            int size = strings.size();
-            if (size == 0) {
+//当前搜索的语言下,没有任何仓库
+            if (repoResultAPI.getTotalCount() <= 0) {
+                getView().refreshData(null);
                 getView().showEmptyView();
-            } else if (size == 1) {
-                getView().showErroView();
-            } else {
-                getView().showContentView();
-                getView().refreshData(strings);
+                return;
             }
-            getView().stopRefresh();
-        }
-    }
-
-    private final class LoadMoreTask extends AsyncTask<Void, Void, List<String>> {
-        //开启任务的方法
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //显示加载中.....
-            getView().showLoadMoreLoading();
+            //取出当前搜索的语言下的所有仓库
+            List<Repo> repoList = repoResultAPI.getRepoList();
+            getView().refreshData(repoList);//刷新当前视图
+            nextPage = 2;
         }
 
         @Override
-        protected List<String> doInBackground(Void... params) {
-            //模拟加载更多时的网络连接
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        public void onFailure(Call<RepoResultAPI> call, Throwable t) {
+            getView().stopRefresh();//停止刷新视图
+        }
+    };
+    //上拉加载的回调
+    private Callback<RepoResultAPI> loadMoreCallBack = new Callback<RepoResultAPI>() {
+        @Override
+        public void onResponse(Call<RepoResultAPI> call, Response<RepoResultAPI> response) {
+            getView().hideLoadMore();//隐藏加载视图
+            RepoResultAPI repoResultAPI = response.body();
+            if (repoResultAPI == null) {
+                getView().showMessage("result is null");
+                return;
             }
-            final ArrayList<String> loadDatas = new ArrayList<>();
-            for (int i = 0; i < 10; i++) {
-                loadDatas.add("我是loadMore的第" + i + "条数据");
+            if (repoResultAPI.getTotalCount() <= 0) {
+                getView().loadMoreEnd();
+                return;
             }
-            return loadDatas;
+            //取出当前搜索的语言下,所有仓库
+            List<Repo> repoList = repoResultAPI.getRepoList();
+            getView().addMoreData(repoList);
+            nextPage++;
         }
 
-        //处理数据的方法
         @Override
-        protected void onPostExecute(List<String> strings) {
-            super.onPostExecute(strings);
-            getView().addMoreData(strings);
+        public void onFailure(Call<RepoResultAPI> call, Throwable t) {
             getView().hideLoadMore();
+            getView().loadViewErro();
         }
-    }
+    };
 }
-
-
-

@@ -6,7 +6,7 @@ package com.feicuiedu.gitdroid.View;
  */
 public interface PtrView <T>{
     void showContentView();
-    void showErroView();
+    void showErroView(String string);
     void showEmptyView();
     //刷新数据
     void refreshData(T t);

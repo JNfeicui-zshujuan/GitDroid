@@ -27,6 +27,7 @@ public interface GithubApi {
             GLIENT_ID + "&" + "scope=" + INIITAL_SCOPE;
 
     //获取访问令牌API,(保存获取到的token ,要增加一个token 的实体类-AccessTokenResult)
+    //https://github.com/login/oauth/access_token
     @Headers("Accept:application/json")
     @FormUrlEncoded
     @POST("https://github.com/login/oauth/access_token")
@@ -39,5 +40,5 @@ public interface GithubApi {
     Call<User> getUserInfo();
 
     @GET("/search/repositories")
-    Call<RepoResultAPI> searchRepo(@Query("q") String query, @Query("page") String pageId);
+    Call<RepoResultAPI> searchRepo(@Query("q") String query, @Query("page") int pageId);
 }
