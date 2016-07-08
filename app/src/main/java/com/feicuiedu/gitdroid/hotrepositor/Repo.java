@@ -3,11 +3,13 @@ package com.feicuiedu.gitdroid.hotrepositor;
 import com.feicuiedu.gitdroid.httpclient.User;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by zhengshujuan on 2016/7/6.
  * 具体到一个仓库的实体类,bean.
  */
-public class Repo {
+public class Repo implements Serializable{
 
     public int getId() {
         return id;

@@ -19,6 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity"></activity>
+        <activity android:name=".readme.RepoInfoActivity"/>
     </application>
 
 </manifest>

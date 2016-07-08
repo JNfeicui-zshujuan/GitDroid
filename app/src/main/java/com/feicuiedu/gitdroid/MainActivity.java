@@ -2,6 +2,7 @@ package com.feicuiedu.gitdroid;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -16,7 +17,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.feicuiedu.gitdroid.common.ActivityUtils;
-import com.feicuiedu.gitdroid.home.HotRepoFragment;
+import com.feicuiedu.gitdroid.favorite.FavoriteFrament;
+import com.feicuiedu.gitdroid.reopList.HotRepoFragment;
 import com.feicuiedu.gitdroid.httpclient.CurrentUser;
 import com.feicuiedu.gitdroid.login.LoginActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -33,10 +35,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Toolbar toolbar;
 
     private HotRepoFragment hotRepoFragment;
+    private FavoriteFrament favoriteFrament;
     private MenuItem menuItem;
     private ImageView ivIcon;
     private ActivityUtils utils;
     private Button btnLogin;
+    private String TAG="MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    //当内容改变是调用该方法
+    //当内容改变时调用该方法
     @Override
     public void onContentChanged() {
         super.onContentChanged();
@@ -71,21 +75,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // 默认第一个menu项为选中(最热门)
         menuItem = navigationView.getMenu().findItem(R.id.github_hot_repo);
         menuItem.setChecked(true);
-//        hotRepoFragment = new HotRepoFragment();
-//        repleceFragment(hotRepoFragment);
-        //替换不同的fragment
-        //创建fragment的对象
-        HotRepoFragment htrf = new HotRepoFragment();
+        hotRepoFragment= new HotRepoFragment();
+        replaceFragment(hotRepoFragment);
+
+    }
+    //替换不同的fragment
+    private void replaceFragment(Fragment fragment) {
         //获取系统自带的fragment管理器
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         //开启事务
         FragmentTransaction transaction = supportFragmentManager.beginTransaction();
         //替换布局
-        transaction.replace(R.id.container, htrf);
+        transaction.replace(R.id.container, fragment);
         //提交事务
         transaction.commit();
     }
 
+    //视图可见时,设置侧滑菜单中的登录按钮的状态
     @Override
     protected void onStart() {
         super.onStart();
@@ -107,20 +113,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //true将菜单变为checked状态
         switch (item.getItemId()) {
             case R.id.github_hot_repo:
-                Toast.makeText(MainActivity.this, "github-hot-repo", Toast.LENGTH_SHORT).show();
+              if (!hotRepoFragment.isAdded())
+                   replaceFragment(hotRepoFragment);
+
                 break;
             case R.id.tips_daily:
                 Toast.makeText(MainActivity.this, "tips_daily", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.arsenal_my_repo:
-                Toast.makeText(MainActivity.this, "arsenal_my_repo", Toast.LENGTH_SHORT).show();
+               if (favoriteFrament==null) favoriteFrament=new FavoriteFrament();
+                if (!favoriteFrament.isAdded()){
+                    replaceFragment(favoriteFrament);
+                }
                 break;
             case R.id.tips_share:
                 //按下分享时,关闭左侧侧滑菜单
                 Toast.makeText(MainActivity.this, "share", Toast.LENGTH_SHORT).show();
                 break;
-
         }
+        drawerLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
         return true;
     }
 

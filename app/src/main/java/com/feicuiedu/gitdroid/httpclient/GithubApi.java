@@ -1,13 +1,18 @@
 package com.feicuiedu.gitdroid.httpclient;
 
 import com.feicuiedu.gitdroid.hotrepositor.RepoResultAPI;
+import com.feicuiedu.gitdroid.readme.RepoContentResult;
 
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -43,4 +48,10 @@ public interface GithubApi {
     //查询仓库结果
     @GET("/search/repositories")
     Call<RepoResultAPI> searchRepo(@Query("q") String query, @Query("page") int pageId);
+    //MarkDown格式
+    @POST("markdown/raw")
+    Call<ResponseBody> MarkDown (@Body RequestBody body);
+    //获取ReadMe文件
+    @GET("repos/{owner}/{repo}/readme")
+    Call<RepoContentResult> getReadme(@Path("owner") String owner, @Path("repo") String repo);
 }

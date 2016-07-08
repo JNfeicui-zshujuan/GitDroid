@@ -1,4 +1,4 @@
-package com.feicuiedu.gitdroid.home;
+package com.feicuiedu.gitdroid.reopList;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,6 +13,7 @@ import com.feicuiedu.gitdroid.R;
 import com.feicuiedu.gitdroid.View.PtrPageView;
 import com.feicuiedu.gitdroid.hotrepositor.Language;
 import com.feicuiedu.gitdroid.hotrepositor.Repo;
+import com.feicuiedu.gitdroid.readme.RepoInfoActivity;
 import com.hannesdorfmann.mosby.mvp.MvpFragment;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
@@ -88,9 +89,17 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Repo repo = adapter.getItem(position);
-
+                RepoInfoActivity.open(getContext(),repo);
             }
         });
+//        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                Repo repo=adapter.getItem(position);
+//                LocalRepo localRepo=
+//                return false;
+//            }
+//        });
         //初始下拉刷新
         initPullToRefresh();
         //初始上拉加载
@@ -115,7 +124,7 @@ public class ReopListFragment extends MvpFragment<PtrPageView, ReopListPresenter
         //Header效果
         StoreHouseHeader header = new StoreHouseHeader(getContext());
         header.setPadding(0, 60, 0, 60);
-        header.initWithString("H H H");
+        header.initWithString("I like AndroidProjects");
         ptrFragment.setHeaderView(header);
         ptrFragment.addPtrUIHandler(header);
         //下拉刷新处理
