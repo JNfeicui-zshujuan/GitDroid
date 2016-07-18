@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+
         //如果NavigationView是开的-->关闭
         //是关的-->退出Activity
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {

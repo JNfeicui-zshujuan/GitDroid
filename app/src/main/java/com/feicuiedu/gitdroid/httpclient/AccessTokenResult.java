@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
  */
 public class AccessTokenResult {
     @SerializedName("access_token")
-private String accessToken;
+    private String accessToken;
     @SerializedName("token_type")
     private String tokenType;
 
